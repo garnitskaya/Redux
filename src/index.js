@@ -1,60 +1,74 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { createStore } from 'redux';
-
-const initialState = { value: 0 };
-
-const reducer = (state = initialState, action) => { //reducer-чистая ф-ция, зависит от state и action
-    switch (action.type) {
-        case 'INC':
-            return {
-                ...state,
-                value: state.value + 1
-            };
-        case 'DEC':
-            return {
-                ...state,
-                value: state.value - 1
-            };
-        case 'RND':
-            return {
-                ...state,
-                value: state.value * action.payload
-            };
-        default:
-            return state;
-    }
-}
+import { createStore, bindActionCreators } from 'redux';
+//import { dec, inc, rnd } from './actions';
+import reducer from './reducer';
+import * as actions from './actions';
 
 const store = createStore(reducer); //store-хранилище
 
+const { dispatch, subscribe, getState } = store;
+
 const update = () => {
-    document.getElementById('counter').textContent = store.getState().value;
+    document.getElementById('counter').textContent = getState().value;
 }
 
-store.subscribe(update);
+subscribe(update);
+//*1
+//const incDispatch = () => dispatch(inc());
+//const decDispatch = () => dispatch(dec());
+//const rndDispatch = (value) => dispatch(rnd(value));
 
-const inc = () => ({ type: 'INC' });//action creator
-const dec = () => ({ type: 'DEC' });//action creator
-const rnd = (value) => ({ type: 'RND', payload: value });//action creator
+//document.getElementById('inc').addEventListener('click', incDispatch);
+//document.getElementById('dec').addEventListener('click', decDispatch);
+//document.getElementById('rnd').addEventListener('click', () => {
+//    const value = Math.floor(Math.random() * 10);
+//    rndDispatch(value);
+//});
 
-document.getElementById('inc').addEventListener('click', () => {
-    store.dispatch(inc());
-});
+//*2
+//const bindActionCreator = (creator, dispatch) => (...args) => {
+//    dispatch(creator(...args));
+//}
 
-document.getElementById('dec').addEventListener('click', () => {
-    store.dispatch(dec());
-});
+//const incDispatch = bindActionCreator(inc, dispatch);
+//const decDispatch = bindActionCreator(dec, dispatch);
+//const rndDispatch = bindActionCreator(rnd, dispatch);
 
+//document.getElementById('inc').addEventListener('click', incDispatch);
+//document.getElementById('dec').addEventListener('click', decDispatch);
+//document.getElementById('rnd').addEventListener('click', () => {
+//    const value = Math.floor(Math.random() * 10);
+//    rndDispatch(value);
+//});
+
+
+//* 3
+
+//const { incDispatch, decDispatch, rndDispatch } = bindActionCreators(
+//    {
+//        incDispatch: inc,
+//        decDispatch: dec,
+//        rndDispatch: rnd
+//    }, dispatch);
+
+//document.getElementById('inc').addEventListener('click', incDispatch);
+//document.getElementById('dec').addEventListener('click', decDispatch);
+//document.getElementById('rnd').addEventListener('click', () => {
+//    const value = Math.floor(Math.random() * 10);
+//    rndDispatch(value);
+//});
+
+//*4
+
+const { inc, dec, rnd } = bindActionCreators(actions, dispatch);
+
+document.getElementById('inc').addEventListener('click', inc);
+document.getElementById('dec').addEventListener('click', dec);
 document.getElementById('rnd').addEventListener('click', () => {
     const value = Math.floor(Math.random() * 10);
-    store.dispatch(rnd(value));
+    rnd(value);
 });
-
-//let state = reducer(initialState, { type: 'INC' });
-//state = reducer(state, { type: 'INC' });
-//state = reducer(state, { type: 'INC' });
-//console.log(state);
 
 ReactDOM.render(
     <React.StrictMode>
